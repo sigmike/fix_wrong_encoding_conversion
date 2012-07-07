@@ -1,0 +1,3 @@
+This script fixes UTF-8 texts wrongly interpreted as ISO8859-1 and converted to UTF-8.
+
+It converts characters like "Ã©", "â‚¬", "Ã¼" to their original UTF-8 form.
