@@ -3,11 +3,42 @@
 
 raise "This script requires Ruby 1.9" unless "".respond_to?(:force_encoding)
 
+def repair_encoding(string)
+  string.encode('iso8859-1').force_encoding('utf-8')
+end
+
+def redo_wrong_conversion(string)
+  string.force_encoding('iso8859-1').encode('utf-8')
+end
+
+
 data = STDIN.read
 
-data.gsub! /â‚¬/, '€'.force_encoding('iso8859-1').encode('utf-8')
-data.gsub! /â€™/, '’'.force_encoding('iso8859-1').encode('utf-8')
+RULES = {
+  "â‚¬" => "€",
+  "â€™" => "’",
+}
 
-data.encode('iso8859-1').force_encoding('utf-8')
+RULES.each do |invalid_conversion, original_symbol|
+  data.gsub! invalid_conversion, redo_wrong_conversion(original_symbol)
+end
+
+begin
+  repair_encoding(data)
+rescue Encoding::UndefinedConversionError
+  STDERR.puts "There are still invalid characters, please add rules in the script."
+  STDERR.puts "Invalid segments:"
+  data.split(/\r?\n/).each do |line|
+    line.scan(/.{1,40}/).each do |slice|
+      begin
+        repair_encoding(slice)
+      rescue Encoding::UndefinedConversionError
+        puts slice
+      end
+    end
+  end
+  exit 1
+end
+  
 
 STDOUT.write data
