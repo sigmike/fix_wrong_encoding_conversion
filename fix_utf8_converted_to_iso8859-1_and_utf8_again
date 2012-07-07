@@ -24,7 +24,7 @@ RULES.each do |invalid_conversion, original_symbol|
 end
 
 begin
-  repair_encoding(data)
+  data = repair_encoding(data)
 rescue Encoding::UndefinedConversionError
   STDERR.puts "There are still invalid characters, please add rules in the script."
   STDERR.puts "Invalid segments:"
